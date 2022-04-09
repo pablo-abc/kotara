@@ -1,4 +1,4 @@
-import type { SmnSlideElement } from './smn-slide';
+import { SmnSlideElement } from './smn-slide';
 import { controller } from '@github/catalyst';
 
 const NEXT_KEYS = ['ArrowRight', 'Space'];
@@ -45,20 +45,19 @@ export class SmnPresentationElement extends HTMLElement {
     ) as HTMLProgressElement;
   }
 
-  observer!: MutationObserver;
-
-  handleMutation() {
-    this.slides = Array.from(this.querySelectorAll('smn-slide'));
-    this.updateHidden();
-  }
   constructor() {
     super();
     this.attachShadow({ mode: 'open' }).appendChild(
       document.importNode(template.content, true)
     );
     this.handleKeyup = this.handleKeyup.bind(this);
-    this.handleMutation = this.handleMutation.bind(this);
-    this.observer = new MutationObserver(this.handleMutation);
+    this.addEventListener('smn:connect', (event: Event) => {
+      const target = event.target as SmnSlideElement;
+      if (this.slides.length !== 0) {
+        target.hidden = true;
+      }
+      this.slides.push(target);
+    });
     this.currentIndex = Number(
       new URLSearchParams(location.search).get('slide') || 0
     );
@@ -93,15 +92,12 @@ export class SmnPresentationElement extends HTMLElement {
   }
 
   connectedCallback() {
-    this.handleMutation();
-    this.observer.observe(this, { childList: true });
     document.body.style.padding = '0';
     document.body.style.margin = '0';
     document.addEventListener('keyup', this.handleKeyup);
   }
 
   disconnectedCallback() {
-    this.observer.disconnect();
     document.removeEventListener('keyup', this.handleKeyup);
   }
 }

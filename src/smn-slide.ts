@@ -54,6 +54,7 @@ export class SmnSlideElement extends HTMLElement {
   }
 
   connectedCallback() {
+    this.dispatchEvent(new CustomEvent('smn:connect', { bubbles: true }));
     if (!this.nofit) {
       this.handleResize();
       window.addEventListener('resize', this.handleResize);

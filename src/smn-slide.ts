@@ -17,14 +17,19 @@ template.innerHTML = /* HTML */ `
       transition: opacity 0.1s;
     }
 
-    :host([hidden]) {
+    :host(:not([data-visible])) {
       display: grid;
       opacity: 0;
     }
 
     #slide-container {
-      width: min(100vh, 100vw);
-      height: min(100vh, 100vw);
+      width: min(90vh, 90vw);
+      height: min(90vh, 90vw);
+    }
+
+    ::slotted(ul),
+    ::slotted(ol) {
+      text-align: left;
     }
   </style>
   <section id="slide-container">
@@ -37,6 +42,15 @@ export class SmnSlideElement extends HTMLElement {
   @attr
   nofit = false;
 
+  @attr
+  visible = false;
+
+  fragments: HTMLElement[] = [];
+
+  get hasFragments() {
+    return this.fragments.length > 0;
+  }
+
   get container() {
     return this.shadowRoot!.querySelector('#slide-container') as HTMLDivElement;
   }
@@ -47,6 +61,10 @@ export class SmnSlideElement extends HTMLElement {
       document.importNode(template.content, true)
     );
     this.handleResize = this.handleResize.bind(this);
+    this.addEventListener('smn-fragment:connect', (event: Event) => {
+      const target = event.target as HTMLElement;
+      this.fragments.push(target);
+    });
   }
 
   handleResize() {
@@ -54,7 +72,7 @@ export class SmnSlideElement extends HTMLElement {
   }
 
   connectedCallback() {
-    this.dispatchEvent(new CustomEvent('smn:connect', { bubbles: true }));
+    this.dispatchEvent(new CustomEvent('smn-slide:connect', { bubbles: true }));
     if (!this.nofit) {
       this.handleResize();
       window.addEventListener('resize', this.handleResize);

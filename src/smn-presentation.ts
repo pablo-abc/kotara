@@ -33,9 +33,23 @@ export class SmnPresentationElement extends HTMLElement {
     return this.#currentIndex;
   }
 
+  #currentFragment = -1;
+  set currentFragment(value: number) {
+    this.#currentFragment = value;
+    this.updateFragments();
+  }
+
+  get currentFragment() {
+    return this.#currentFragment;
+  }
+
+  get currentSlide() {
+    return this.slides[this.#currentIndex];
+  }
+
   get shownSlides() {
     return Array.from(
-      this.querySelectorAll('smn-slide:not([hidden])')
+      this.querySelectorAll('smn-slide[data-visible]')
     ) as SmnSlideElement[];
   }
 
@@ -51,10 +65,10 @@ export class SmnPresentationElement extends HTMLElement {
       document.importNode(template.content, true)
     );
     this.handleKeyup = this.handleKeyup.bind(this);
-    this.addEventListener('smn:connect', (event: Event) => {
+    this.addEventListener('smn-slide:connect', (event: Event) => {
       const target = event.target as SmnSlideElement;
       if (this.slides.length !== 0) {
-        target.hidden = true;
+        target.removeAttribute('data-visible');
       }
       this.slides.push(target);
     });
@@ -65,13 +79,22 @@ export class SmnPresentationElement extends HTMLElement {
 
   handleKeyup(event: KeyboardEvent) {
     if (NEXT_KEYS.includes(event.code)) {
-      if (this.currentIndex < this.slides.length - 1) {
+      if (
+        this.currentSlide.hasFragments &&
+        this.currentFragment < this.currentSlide.fragments.length - 1
+      ) {
+        this.currentFragment += 1;
+      } else if (this.currentIndex < this.slides.length - 1) {
         this.currentIndex += 1;
+        this.currentFragment = -1;
       }
     }
     if (PREV_KEYS.includes(event.code)) {
-      if (this.currentIndex !== 0) {
+      if (this.currentSlide.hasFragments && this.currentFragment !== -1) {
+        this.currentFragment -= 1;
+      } else if (this.currentIndex !== 0) {
         this.currentIndex -= 1;
+        this.currentFragment = this.currentSlide.fragments.length - 1;
       }
     }
     this.updateProgress();
@@ -84,11 +107,21 @@ export class SmnPresentationElement extends HTMLElement {
 
   #updateHiddenTimeout?: number;
   updateHidden() {
-    this.shownSlides.forEach((slide) => (slide.hidden = true));
+    this.shownSlides.forEach((slide) => slide.removeAttribute('data-visible'));
     if (this.#updateHiddenTimeout) clearTimeout(this.#updateHiddenTimeout);
     this.#updateHiddenTimeout = setTimeout(() => {
-      this.slides[this.currentIndex].hidden = false;
+      this.currentSlide.setAttribute('data-visible', '');
     }, 200);
+  }
+
+  updateFragments() {
+    this.currentSlide.fragments.forEach((fragment, index) => {
+      if (index <= this.currentFragment) {
+        fragment.setAttribute('data-visible', '');
+      } else {
+        fragment.removeAttribute('data-visible');
+      }
+    });
   }
 
   connectedCallback() {

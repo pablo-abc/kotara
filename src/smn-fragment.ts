@@ -31,8 +31,6 @@ export class SmnFragmentElement extends HTMLElement {
   }
 
   connectedCallback() {
-    this.dispatchEvent(
-      new CustomEvent('smn-fragment:connect', { bubbles: true })
-    );
+    this.setAttribute('data-fragment', '');
   }
 }

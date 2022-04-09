@@ -45,7 +45,11 @@ export class SmnSlideElement extends HTMLElement {
   @attr
   visible = false;
 
-  fragments: HTMLElement[] = [];
+  get fragments() {
+    return Array.from(
+      this.querySelectorAll('[data-fragment]')
+    ) as HTMLElement[];
+  }
 
   get hasFragments() {
     return this.fragments.length > 0;
@@ -61,10 +65,6 @@ export class SmnSlideElement extends HTMLElement {
       document.importNode(template.content, true)
     );
     this.handleResize = this.handleResize.bind(this);
-    this.addEventListener('smn-fragment:connect', (event: Event) => {
-      const target = event.target as HTMLElement;
-      this.fragments.push(target);
-    });
   }
 
   handleResize() {

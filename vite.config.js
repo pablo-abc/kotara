@@ -8,6 +8,9 @@ export default defineConfig({
       formats: ['es'],
       fileName: () => 'index.js',
     },
+    rollupOptions: {
+      external: ['@github/catalyst', 'textfit'],
+    },
   },
   esbuild: {
     keepNames: true,

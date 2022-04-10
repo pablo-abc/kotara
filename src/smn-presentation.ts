@@ -56,6 +56,8 @@ export class SmnPresentationElement extends HTMLElement {
       document.importNode(template.content, true)
     );
     this.handleKeyup = this.handleKeyup.bind(this);
+    this.handlePopstate = this.handlePopstate.bind(this);
+
     this.addEventListener('smn-slide:connect', (event: Event) => {
       const target = event.target as SmnSlideElement;
       if (this.slides.length !== 0) {
@@ -67,17 +69,26 @@ export class SmnPresentationElement extends HTMLElement {
     this.addEventListener('smn-slide:horizontal-forward', () => {
       if (this.currentIndex < this.slides.length - 1) {
         this.currentIndex += 1;
+        this.updateURLState();
       }
     });
+
     this.addEventListener('smn-slide:horizontal-backward', () => {
       if (this.currentIndex !== 0) {
         this.currentIndex -= 1;
+        this.updateURLState();
       }
     });
   }
 
+  updateURLState() {
+    const url = new URL(location.href);
+    url.searchParams.set('slide', this.currentIndex.toString());
+    url.searchParams.delete('fragment');
+    history.pushState({}, '', url);
+  }
+
   handleKeyup(event: KeyboardEvent) {
-    console.log(event);
     if (NEXT_KEYS.includes(event.code)) {
       if (this.currentIndex < this.slides.length - 1) {
         this.currentSlide.next();
@@ -88,6 +99,13 @@ export class SmnPresentationElement extends HTMLElement {
         this.currentSlide.prev();
       }
     }
+    this.updateProgress();
+  }
+
+  handlePopstate() {
+    this.currentIndex = Number(
+      new URLSearchParams(location.search).get('slide') || 0
+    );
     this.updateProgress();
   }
 
@@ -115,14 +133,14 @@ export class SmnPresentationElement extends HTMLElement {
     document.body.style.padding = '0';
     document.body.style.margin = '0';
     document.addEventListener('keyup', this.handleKeyup);
+    window.addEventListener('popstate', this.handlePopstate);
     setTimeout(() => {
-      this.currentIndex = Number(
-        new URLSearchParams(location.search).get('slide') || 0
-      );
+      this.handlePopstate();
     });
   }
 
   disconnectedCallback() {
     document.removeEventListener('keyup', this.handleKeyup);
+    window.removeEventListener('popstate', this.handlePopstate);
   }
 }

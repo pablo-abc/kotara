@@ -9,7 +9,7 @@ export default defineConfig({
       fileName: () => 'index.js',
     },
     rollupOptions: {
-      external: ['@github/catalyst', 'textfit'],
+      external: ['@github/catalyst', 'textfit', 'motion'],
     },
   },
   esbuild: {

@@ -100,7 +100,6 @@ export class SmnSlideElement extends HTMLElement {
   updateFragmentVisibility() {
     this.fragments.forEach(async (fragment, index) => {
       if (index <= this.currentIndex) {
-        fragment.style.visibility = 'visible';
         if (!fragment.hasAttribute('data-visible')) {
           animate(
             fragment,
@@ -118,7 +117,7 @@ export class SmnSlideElement extends HTMLElement {
           ).finished;
           fragment.removeAttribute('data-visible');
         }
-        fragment.style.visibility = 'hidden';
+        fragment.style.opacity = '0';
       }
     });
   }

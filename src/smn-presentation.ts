@@ -79,7 +79,11 @@ export class SmnPresentationElement extends HTMLElement {
 
   updateURLState() {
     const url = new URL(location.href);
-    url.searchParams.set('slide', this.currentIndex.toString());
+    if (this.currentIndex === 0) {
+      url.searchParams.delete('slide');
+    } else {
+      url.searchParams.set('slide', this.currentIndex.toString());
+    }
     url.searchParams.delete('fragment');
     history.pushState({}, '', url);
   }

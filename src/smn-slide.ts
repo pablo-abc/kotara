@@ -25,6 +25,27 @@ template.innerHTML = /* HTML */ `
     ::slotted(ol) {
       text-align: left;
     }
+
+    ::slotted(*) {
+      font-size: 0.6em;
+    }
+
+    ::slotted(h1) {
+      font-size: 1.2em;
+    }
+
+    ::slotted(h2) {
+      font-size: 1em;
+    }
+
+    ::slotted(pre) {
+      font-size: 0.27em;
+      width: 100%;
+    }
+
+    .textFitted {
+      width: 100%;
+    }
   </style>
   <section id="slide-container">
     <slot></slot>
@@ -88,7 +109,8 @@ export class SmnSlideElement extends HTMLElement {
   }
 
   handleResize() {
-    textFit(this.container, { alignHoriz: true, alignVert: true });
+    if (this.nofit) return;
+    textFit(this.container);
   }
 
   handlePopstate() {
@@ -109,6 +131,7 @@ export class SmnSlideElement extends HTMLElement {
 
   connectedCallback() {
     this.style.visibility = 'hidden';
+    this.addEventListener('smn-marked:render', this.handleResize);
     if (!this.nofit) {
       this.handleResize();
       window.addEventListener('resize', this.handleResize);

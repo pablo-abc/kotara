@@ -59,6 +59,7 @@ export class SmnSlideElement extends HTMLElement {
   next(direction: 'horizontal' | 'vertical' = 'horizontal') {
     if (this.hasFragments && this.currentIndex < this.fragments.length - 1) {
       this.currentIndex += 1;
+      this.updateURLState();
       return;
     }
     this.dispatchEvent(
@@ -69,6 +70,7 @@ export class SmnSlideElement extends HTMLElement {
   prev(direction: 'horizontal' | 'vertical' = 'horizontal') {
     if (this.hasFragments && this.currentIndex !== -1) {
       this.currentIndex -= 1;
+      this.updateURLState();
       return;
     }
     this.dispatchEvent(

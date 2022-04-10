@@ -64,6 +64,7 @@ export class SmnPresentationElement extends HTMLElement {
       if (this.currentIndex < this.slides.length - 1) {
         this.currentIndex += 1;
         this.updateURLState();
+        this.currentSlide.updateURLState();
       }
     });
 
@@ -71,6 +72,7 @@ export class SmnPresentationElement extends HTMLElement {
       if (this.currentIndex !== 0) {
         this.currentIndex -= 1;
         this.updateURLState();
+        this.currentSlide.updateURLState();
       }
     });
   }

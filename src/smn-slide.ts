@@ -82,19 +82,36 @@ export class SmnSlideElement extends HTMLElement {
       document.importNode(template.content, true)
     );
     this.handleResize = this.handleResize.bind(this);
+    this.handlePopstate = this.handlePopstate.bind(this);
   }
 
   handleResize() {
     textFit(this.container, { alignHoriz: true, alignVert: true });
   }
 
+  handlePopstate() {
+    this.currentIndex = Number(
+      new URLSearchParams(location.search).get('fragment') || -1
+    );
+  }
+
+  updateURLState() {
+    const url = new URL(location.href);
+    if (this.currentIndex === -1) {
+      url.searchParams.delete('fragment');
+    } else {
+      url.searchParams.set('fragment', this.currentIndex.toString());
+    }
+    history.pushState({}, '', url);
+  }
+
   connectedCallback() {
-    this.dispatchEvent(new CustomEvent('smn-slide:connect', { bubbles: true }));
     this.style.visibility = 'hidden';
     if (!this.nofit) {
       this.handleResize();
       window.addEventListener('resize', this.handleResize);
     }
+    this.handlePopstate();
   }
 
   updateFragmentVisibility() {

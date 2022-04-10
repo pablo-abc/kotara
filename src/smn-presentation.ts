@@ -22,7 +22,9 @@ template.innerHTML = /* HTML */ `
 
 @controller
 export class SmnPresentationElement extends HTMLElement {
-  slides: SmnSlideElement[] = [];
+  get slides() {
+    return Array.from(this.querySelectorAll('smn-slide')) as SmnSlideElement[];
+  }
 
   #currentIndex = 0;
   set currentIndex(value: number) {
@@ -57,14 +59,6 @@ export class SmnPresentationElement extends HTMLElement {
     );
     this.handleKeyup = this.handleKeyup.bind(this);
     this.handlePopstate = this.handlePopstate.bind(this);
-
-    this.addEventListener('smn-slide:connect', (event: Event) => {
-      const target = event.target as SmnSlideElement;
-      if (this.slides.length !== 0) {
-        target.removeAttribute('data-visible');
-      }
-      this.slides.push(target);
-    });
 
     this.addEventListener('smn-slide:horizontal-forward', () => {
       if (this.currentIndex < this.slides.length - 1) {

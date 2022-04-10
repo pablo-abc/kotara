@@ -141,7 +141,12 @@ export class SmnSlideElement extends HTMLElement {
     });
   }
 
-  async attributeChangedCallback(name: string) {
+  async attributeChangedCallback(
+    name: string,
+    newValue: string,
+    oldValue: string
+  ) {
+    if (newValue === oldValue) return;
     if (name === 'data-visible') {
       if (this.visible) {
         this.style.visibility = 'visible';

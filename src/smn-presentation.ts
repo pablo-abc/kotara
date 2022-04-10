@@ -121,7 +121,10 @@ export class SmnPresentationElement extends HTMLElement {
   }
 
   updateHidden() {
-    this.shownSlides.forEach((slide) => slide.removeAttribute('data-visible'));
+    this.shownSlides.forEach((slide) => {
+      if (slide === this.currentSlide) return;
+      slide.removeAttribute('data-visible');
+    });
     this.currentSlide.setAttribute('data-visible', '');
   }
 

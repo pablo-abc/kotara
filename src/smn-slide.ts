@@ -1,5 +1,6 @@
 import { controller, attr } from '@github/catalyst';
 import textFit from 'textfit';
+import { animate } from 'motion';
 
 const template = document.createElement('template');
 
@@ -13,17 +14,10 @@ template.innerHTML = /* HTML */ `
       left: 0;
       bottom: 0;
       right: 0;
-      opacity: 1;
-      transition: opacity 0.1s;
-    }
-
-    :host(:not([data-visible])) {
-      display: grid;
-      opacity: 0;
     }
 
     #slide-container {
-      width: min(90vh, 90vw);
+      width: min(100vh, 100vw);
       height: min(90vh, 90vw);
     }
 
@@ -45,6 +39,9 @@ export class SmnSlideElement extends HTMLElement {
   @attr
   visible = false;
 
+  @attr
+  currentIndex = -1;
+
   get fragments() {
     return Array.from(
       this.querySelectorAll('[data-fragment]')
@@ -57,6 +54,26 @@ export class SmnSlideElement extends HTMLElement {
 
   get container() {
     return this.shadowRoot!.querySelector('#slide-container') as HTMLDivElement;
+  }
+
+  next(direction: 'horizontal' | 'vertical' = 'horizontal') {
+    if (this.hasFragments && this.currentIndex < this.fragments.length - 1) {
+      this.currentIndex += 1;
+      return;
+    }
+    this.dispatchEvent(
+      new CustomEvent(`smn-slide:${direction}-forward`, { bubbles: true })
+    );
+  }
+
+  prev(direction: 'horizontal' | 'vertical' = 'horizontal') {
+    if (this.hasFragments && this.currentIndex !== -1) {
+      this.currentIndex -= 1;
+      return;
+    }
+    this.dispatchEvent(
+      new CustomEvent(`smn-slide:${direction}-backward`, { bubbles: true })
+    );
   }
 
   constructor() {
@@ -73,9 +90,51 @@ export class SmnSlideElement extends HTMLElement {
 
   connectedCallback() {
     this.dispatchEvent(new CustomEvent('smn-slide:connect', { bubbles: true }));
+    this.style.visibility = 'hidden';
     if (!this.nofit) {
       this.handleResize();
       window.addEventListener('resize', this.handleResize);
+    }
+  }
+
+  updateFragmentVisibility() {
+    this.fragments.forEach(async (fragment, index) => {
+      if (index <= this.currentIndex) {
+        fragment.style.visibility = 'visible';
+        if (!fragment.hasAttribute('data-visible')) {
+          animate(
+            fragment,
+            { opacity: [0, 1], x: [-100, 0] },
+            { duration: 0.1, easing: 'ease-out', opacity: { easing: 'linear' } }
+          );
+          fragment.setAttribute('data-visible', '');
+        }
+      } else {
+        if (fragment.hasAttribute('data-visible')) {
+          await animate(
+            fragment,
+            { opacity: 0, x: [0, -100] },
+            { duration: 0.1, easing: 'ease-in', opacity: { easing: 'linear' } }
+          ).finished;
+          fragment.removeAttribute('data-visible');
+        }
+        fragment.style.visibility = 'hidden';
+      }
+    });
+  }
+
+  async attributeChangedCallback(name: string) {
+    if (name === 'data-visible') {
+      if (this.visible) {
+        this.style.visibility = 'visible';
+        animate(this, { opacity: [0, 1] }, { duration: 0.1, delay: 0.1 });
+      } else {
+        await animate(this, { opacity: 0 }, { duration: 0.1 }).finished;
+        this.style.visibility = 'hidden';
+      }
+    }
+    if (name === 'data-current-index') {
+      this.updateFragmentVisibility();
     }
   }
 

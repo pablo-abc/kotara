@@ -1,9 +1,10 @@
 import { SmnSlideElement } from './smn-slide';
 import { controller } from '@github/catalyst';
+import { animate } from 'motion';
 
-const NEXT_KEYS = ['ArrowRight', 'Space'];
+const NEXT_KEYS = ['ArrowRight', 'Space', 'KeyL'];
 
-const PREV_KEYS = ['ArrowLeft'];
+const PREV_KEYS = ['ArrowLeft', 'KeyH'];
 
 const template = document.createElement('template');
 
@@ -31,16 +32,6 @@ export class SmnPresentationElement extends HTMLElement {
 
   get currentIndex() {
     return this.#currentIndex;
-  }
-
-  #currentFragment = -1;
-  set currentFragment(value: number) {
-    this.#currentFragment = value;
-    this.updateFragments();
-  }
-
-  get currentFragment() {
-    return this.#currentFragment;
   }
 
   get currentSlide() {
@@ -72,62 +63,63 @@ export class SmnPresentationElement extends HTMLElement {
       }
       this.slides.push(target);
     });
-    this.currentIndex = Number(
-      new URLSearchParams(location.search).get('slide') || 0
-    );
+
+    this.addEventListener('smn-slide:horizontal-forward', () => {
+      if (this.currentIndex < this.slides.length - 1) {
+        this.currentIndex += 1;
+      }
+    });
+    this.addEventListener('smn-slide:horizontal-backward', () => {
+      if (this.currentIndex !== 0) {
+        this.currentIndex -= 1;
+      }
+    });
   }
 
   handleKeyup(event: KeyboardEvent) {
+    console.log(event);
     if (NEXT_KEYS.includes(event.code)) {
-      if (
-        this.currentSlide.hasFragments &&
-        this.currentFragment < this.currentSlide.fragments.length - 1
-      ) {
-        this.currentFragment += 1;
-      } else if (this.currentIndex < this.slides.length - 1) {
-        this.currentIndex += 1;
-        this.currentFragment = -1;
+      if (this.currentIndex < this.slides.length - 1) {
+        this.currentSlide.next();
       }
     }
     if (PREV_KEYS.includes(event.code)) {
-      if (this.currentSlide.hasFragments && this.currentFragment !== -1) {
-        this.currentFragment -= 1;
-      } else if (this.currentIndex !== 0) {
-        this.currentIndex -= 1;
-        this.currentFragment = this.currentSlide.fragments.length - 1;
+      if (this.currentIndex !== 0) {
+        this.currentSlide.prev();
       }
     }
     this.updateProgress();
   }
 
   updateProgress() {
-    this.progressBar.value =
-      (this.currentIndex / (this.slides.length - 1)) * 100;
+    const initialValue = this.progressBar.value;
+    const targetValue = (this.currentIndex / (this.slides.length - 1)) * 100;
+    animate(
+      (progress) => {
+        this.progressBar.value =
+          (targetValue - initialValue) * progress + initialValue;
+      },
+      {
+        duration: 0.1,
+        easing: 'ease-in-out',
+      }
+    );
   }
 
-  #updateHiddenTimeout?: number;
   updateHidden() {
     this.shownSlides.forEach((slide) => slide.removeAttribute('data-visible'));
-    if (this.#updateHiddenTimeout) clearTimeout(this.#updateHiddenTimeout);
-    this.#updateHiddenTimeout = setTimeout(() => {
-      this.currentSlide.setAttribute('data-visible', '');
-    }, 200);
-  }
-
-  updateFragments() {
-    this.currentSlide.fragments.forEach((fragment, index) => {
-      if (index <= this.currentFragment) {
-        fragment.setAttribute('data-visible', '');
-      } else {
-        fragment.removeAttribute('data-visible');
-      }
-    });
+    this.currentSlide.setAttribute('data-visible', '');
   }
 
   connectedCallback() {
     document.body.style.padding = '0';
     document.body.style.margin = '0';
     document.addEventListener('keyup', this.handleKeyup);
+    setTimeout(() => {
+      this.currentIndex = Number(
+        new URLSearchParams(location.search).get('slide') || 0
+      );
+    });
   }
 
   disconnectedCallback() {

@@ -19,6 +19,8 @@ template.innerHTML = /* HTML */ `
     #slide-container {
       width: min(100vh, 100vw);
       height: min(90vh, 90vw);
+      display: grid;
+      place-items: center;
     }
 
     ::slotted(ul),
@@ -28,6 +30,7 @@ template.innerHTML = /* HTML */ `
 
     ::slotted(*) {
       font-size: 0.6em;
+      text-align: center;
     }
 
     ::slotted(h1) {
@@ -38,9 +41,20 @@ template.innerHTML = /* HTML */ `
       font-size: 1em;
     }
 
+    ::slotted(h3) {
+      font-size: 0.8em;
+    }
+
+    ::slotted(h4) {
+      font-size: 0.7em;
+    }
+
     ::slotted(pre) {
-      font-size: 0.27em;
+      font-size: 0.23em;
       width: 100%;
+      text-align: left;
+      max-height: 50vh;
+      overflow: auto;
     }
 
     .textFitted {
@@ -110,7 +124,7 @@ export class SmnSlideElement extends HTMLElement {
 
   handleResize() {
     if (this.nofit) return;
-    textFit(this.container);
+    textFit(this.container, { alignVertWithFlexbox: true });
   }
 
   handlePopstate() {

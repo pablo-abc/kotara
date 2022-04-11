@@ -4,6 +4,7 @@ specifiers:
   '@github/catalyst': ^1.3.2
   '@types/marked': ^4.0.3
   '@types/textfit': ^2.4.2
+  highlight.js: ^11.5.0
   marked: ^4.0.13
   motion: ^10.7.0
   textfit: ^2.4.0
@@ -12,6 +13,7 @@ specifiers:
 
 dependencies:
   '@github/catalyst': 1.3.2
+  highlight.js: 11.5.0
   marked: 4.0.13
   motion: 10.7.0
   textfit: 2.4.0
@@ -354,6 +356,11 @@ packages:
 
   /hey-listen/1.0.8:
     resolution: {integrity: sha512-COpmrF2NOg4TBWUJ5UVyaCU2A88wEMkUPK4hNqyCkqHbxT92BbvfjoSozkAIIm6XhicGlJHhFdullInrdhwU8Q==}
+    dev: false
+
+  /highlight.js/11.5.0:
+    resolution: {integrity: sha512-SM6WDj5/C+VfIY8pZ6yW6Xa0Fm1tniYVYWYW1Q/DcMnISZFrC3aQAZZZFAAZtybKNrGId3p/DNbFTtcTXXgYBw==}
+    engines: {node: '>=12.0.0'}
     dev: false
 
   /is-core-module/2.8.1:

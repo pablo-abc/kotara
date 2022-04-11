@@ -1,5 +1,16 @@
 import { controller } from '@github/catalyst';
 import { marked } from 'marked';
+import hljs from 'highlight.js';
+
+marked.setOptions({
+  highlight: function (code, lang) {
+    try {
+      return hljs.highlight(code, { language: lang }).value;
+    } catch {
+      return code;
+    }
+  },
+});
 
 @controller
 export class SmnMarkedElement extends HTMLElement {
@@ -19,7 +30,10 @@ export class SmnMarkedElement extends HTMLElement {
 
   #parsed?: string;
   get parsed() {
-    if (!this.#parsed) this.#parsed = marked.parse(this.markdown);
+    if (!this.#parsed)
+      this.#parsed = marked
+        .parse(this.markdown)
+        .replaceAll('<pre>', '<pre class="hljs">');
     return this.#parsed;
   }
 

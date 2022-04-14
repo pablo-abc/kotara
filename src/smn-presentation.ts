@@ -90,14 +90,10 @@ export class SmnPresentationElement extends HTMLElement {
 
   handleKeyup(event: KeyboardEvent) {
     if (NEXT_KEYS.includes(event.code)) {
-      if (this.currentIndex < this.slides.length - 1) {
-        this.currentSlide.next();
-      }
+      this.currentSlide.next();
     }
     if (PREV_KEYS.includes(event.code)) {
-      if (this.currentIndex !== 0) {
-        this.currentSlide.prev();
-      }
+      this.currentSlide.prev();
     }
     this.updateProgress();
   }

@@ -1,4 +1,4 @@
-import { controller, attr, target } from '@github/catalyst';
+import { controller, attr } from '@github/catalyst';
 import { animate } from 'motion';
 
 const template = document.createElement('template');
@@ -31,6 +31,7 @@ template.innerHTML = /* HTML */ `
     ::slotted(*) {
       font-size: 2.6rem;
       text-align: center;
+      margin: 0;
     }
 
     ::slotted(h1) {
@@ -51,10 +52,10 @@ template.innerHTML = /* HTML */ `
 
     ::slotted(pre) {
       font-size: 1.2em;
-      width: 100%;
       text-align: left;
-      max-height: 50vh;
+      max-height: 20em;
       overflow: auto;
+      padding: 1em;
     }
 
     .textFitted {
@@ -110,6 +111,8 @@ export class SmnSlideElement extends HTMLElement {
     );
   }
 
+  observer!: ResizeObserver;
+
   constructor() {
     super();
     this.attachShadow({ mode: 'open' }).appendChild(
@@ -117,15 +120,17 @@ export class SmnSlideElement extends HTMLElement {
     );
     this.handleResize = this.handleResize.bind(this);
     this.handlePopstate = this.handlePopstate.bind(this);
+    this.observer = new ResizeObserver(this.handleResize);
   }
 
   originalSize?: { width: number; height: number };
 
   handleResize() {
     const rect = this.container.getBoundingClientRect();
+    const slideRect = this.getBoundingClientRect();
     if (!this.originalSize) this.originalSize = rect;
-    const ratioH = window.innerHeight / this.originalSize.height;
-    const ratioW = window.innerWidth / this.originalSize.width;
+    const ratioH = slideRect.height / this.originalSize.height;
+    const ratioW = slideRect.width / this.originalSize.width;
     const min = Math.min(ratioH, ratioW);
     this.container.style.transform = `scale(${min})`;
   }
@@ -148,8 +153,8 @@ export class SmnSlideElement extends HTMLElement {
 
   connectedCallback() {
     this.style.visibility = 'hidden';
-    this.addEventListener('smn-marked:render', this.handleResize);
     this.handlePopstate();
+    this.observer.observe(this);
     requestAnimationFrame(() => {
       this.handleResize();
       window.addEventListener('resize', this.handleResize);
@@ -203,5 +208,6 @@ export class SmnSlideElement extends HTMLElement {
 
   disconnectedCallback() {
     window.removeEventListener('resize', this.handleResize);
+    this.observer.disconnect();
   }
 }

@@ -193,8 +193,8 @@ export class KotSlideElement extends HTMLElement {
 
   async attributeChangedCallback(
     name: string,
-    newValue: string,
-    oldValue: string
+    oldValue: string,
+    newValue: string
   ) {
     if (newValue === oldValue) return;
     if (name === 'data-visible') {

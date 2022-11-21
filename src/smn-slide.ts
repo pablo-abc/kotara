@@ -89,6 +89,11 @@ export class SmnSlideElement extends HTMLElement {
     return this.fragments.length > 0;
   }
 
+  get progress() {
+    if (this.fragments.length === 0) return 0;
+    return (this.currentIndex + 1) / this.fragments.length;
+  }
+
   next(direction: 'horizontal' | 'vertical' = 'horizontal') {
     if (this.hasFragments && this.currentIndex < this.fragments.length - 1) {
       this.currentIndex += 1;

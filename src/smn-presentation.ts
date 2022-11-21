@@ -16,14 +16,21 @@ template.innerHTML = /* HTML */ `
       bottom: 0;
     }
   </style>
-  <slot></slot>
+  <slot id="default"></slot>
   <progress id="progressbar" max="100" value="0"></progress>
 `;
 
 @controller
 export class SmnPresentationElement extends HTMLElement {
+  get #defaultSlot() {
+    return this.shadowRoot!.querySelector('#default') as HTMLSlotElement;
+  }
+
   get slides() {
-    return Array.from(this.querySelectorAll('smn-slide')) as SmnSlideElement[];
+    const slides = this.#defaultSlot
+      .assignedElements()
+      .filter((node) => node instanceof SmnSlideElement) as SmnSlideElement[];
+    return slides;
   }
 
   #currentIndex = 0;
@@ -133,9 +140,7 @@ export class SmnPresentationElement extends HTMLElement {
     document.body.style.margin = '0';
     document.addEventListener('keyup', this.handleKeyup);
     window.addEventListener('popstate', this.handlePopstate);
-    setTimeout(() => {
-      this.handlePopstate();
-    });
+    setTimeout(() => this.handlePopstate());
   }
 
   disconnectedCallback() {

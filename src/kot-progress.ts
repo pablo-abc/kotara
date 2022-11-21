@@ -16,6 +16,8 @@ template.innerHTML = /* HTML */ `
     #bar {
       background-color: var(--progress-color, deepskyblue);
       height: var(--progress-height, 4px);
+      width: 100%;
+      transform-origin: left;
     }
   </style>
   <div id="base" role="progressbar" part="base">
@@ -43,7 +45,7 @@ export class KotProgressElement extends HTMLElement {
 
   attributeChangedCallback(name: string, _: any, value: string) {
     if (name === 'data-value') {
-      this.barElement.style.width = `${value}%`;
+      this.barElement.style.transform = `scaleX(${value}%)`;
       this.baseElement.setAttribute('aria-valuenow', value);
     }
   }

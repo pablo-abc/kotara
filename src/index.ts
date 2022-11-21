@@ -1,3 +1,3 @@
-export * from './smn-presentation';
-export * from './smn-slide';
-export * from './smn-marked';
+export * from './kot-presentation';
+export * from './kot-slide';
+export * from './kot-marked';

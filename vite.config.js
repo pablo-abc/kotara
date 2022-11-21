@@ -4,9 +4,15 @@ import { defineConfig } from 'vite';
 export default defineConfig({
   build: {
     lib: {
-      entry: './src/index.ts',
+      entry: [
+        './src/index.ts',
+        './src/kot-marked.ts',
+        './src/kot-code.ts',
+        './src/kot-slide.ts',
+        './src/kot-presentation.ts',
+      ],
       formats: ['es'],
-      fileName: () => 'index.js',
+      fileName: (_, entry) => `${entry}.js`,
     },
     rollupOptions: {
       external: [
@@ -16,6 +22,9 @@ export default defineConfig({
         'highlight.js',
         'marked',
       ],
+      output: {
+        hoistTransitiveImports: false,
+      },
     },
   },
   esbuild: {

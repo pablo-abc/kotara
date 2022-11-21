@@ -1,4 +1,4 @@
-import { SmnSlideElement } from './smn-slide';
+import { KotSlideElement } from './kot-slide';
 import { controller } from '@github/catalyst';
 import { animate } from 'motion';
 
@@ -21,7 +21,7 @@ template.innerHTML = /* HTML */ `
 `;
 
 @controller
-export class SmnPresentationElement extends HTMLElement {
+export class KotPresentationElement extends HTMLElement {
   get #defaultSlot() {
     return this.shadowRoot!.querySelector('#default') as HTMLSlotElement;
   }
@@ -29,7 +29,7 @@ export class SmnPresentationElement extends HTMLElement {
   get slides() {
     const slides = this.#defaultSlot
       .assignedElements()
-      .filter((node) => node instanceof SmnSlideElement) as SmnSlideElement[];
+      .filter((node) => node instanceof KotSlideElement) as KotSlideElement[];
     return slides;
   }
 
@@ -49,8 +49,8 @@ export class SmnPresentationElement extends HTMLElement {
 
   get shownSlides() {
     return Array.from(
-      this.querySelectorAll('smn-slide[data-visible]')
-    ) as SmnSlideElement[];
+      this.querySelectorAll('kot-slide[data-visible]')
+    ) as KotSlideElement[];
   }
 
   get progressBar() {
@@ -67,7 +67,7 @@ export class SmnPresentationElement extends HTMLElement {
     this.handleKeyup = this.handleKeyup.bind(this);
     this.handlePopstate = this.handlePopstate.bind(this);
 
-    this.addEventListener('smn-slide:horizontal-forward', () => {
+    this.addEventListener('kot-slide:horizontal-forward', () => {
       if (this.currentIndex < this.slides.length - 1) {
         this.currentIndex += 1;
         this.updateURLState();
@@ -75,7 +75,7 @@ export class SmnPresentationElement extends HTMLElement {
       }
     });
 
-    this.addEventListener('smn-slide:horizontal-backward', () => {
+    this.addEventListener('kot-slide:horizontal-backward', () => {
       if (this.currentIndex !== 0) {
         this.currentIndex -= 1;
         this.updateURLState();
@@ -116,7 +116,7 @@ export class SmnPresentationElement extends HTMLElement {
     const initialValue = this.progressBar.value;
     const targetValue = (this.currentIndex / (this.slides.length - 1)) * 100;
     animate(
-      (progress) => {
+      (progress: number) => {
         this.progressBar.value =
           (targetValue - initialValue) * progress + initialValue;
       },

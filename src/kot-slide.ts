@@ -68,7 +68,7 @@ template.innerHTML = /* HTML */ `
 `;
 
 @controller
-export class SmnSlideElement extends HTMLElement {
+export class KotSlideElement extends HTMLElement {
   @attr
   visible = false;
 
@@ -101,7 +101,7 @@ export class SmnSlideElement extends HTMLElement {
       return;
     }
     this.dispatchEvent(
-      new CustomEvent(`smn-slide:${direction}-forward`, { bubbles: true })
+      new CustomEvent(`kot-slide:${direction}-forward`, { bubbles: true })
     );
   }
 
@@ -112,7 +112,7 @@ export class SmnSlideElement extends HTMLElement {
       return;
     }
     this.dispatchEvent(
-      new CustomEvent(`smn-slide:${direction}-backward`, { bubbles: true })
+      new CustomEvent(`kot-slide:${direction}-backward`, { bubbles: true })
     );
   }
 

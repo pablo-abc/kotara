@@ -8,9 +8,9 @@
     <script type="module" src="/src/index.ts"></script>
   </head>
   <body>
-    <smn-presentation>
-      <smn-slide>
-        <smn-marked>
+    <kot-presentation>
+      <kot-slide>
+        <kot-marked>
           <script type="text/markdown">
             # Hello there
 
@@ -36,7 +36,7 @@
             });
 
             @controller
-            export class SmnMarkedElement extends HTMLElement {
+            export class KotMarkedElement extends HTMLElement {
               get markdown() {
                 const script = document.querySelector(
                   'script[type="text/markdown"]'
@@ -68,33 +68,41 @@
                   this.nextElementSibling
                 );
                 this.dispatchEvent(
-                  new CustomEvent('smn-marked:render', { bubbles: true })
+                  new CustomEvent('kot-marked:render', { bubbles: true })
                 );
                 this.parentElement?.removeChild(this);
               }
             }
             ```
           </script>
-        </smn-marked>
-      </smn-slide>
-      <smn-slide>
+        </kot-marked>
+      </kot-slide>
+      <kot-slide>
+        <h1>Hello there again</h1>
+        <kot-code>
+          <script type="text/clojure">
+            (defn say-hi [] (print "Hello"))
+          </script>
+        </kot-code>
+      </kot-slide>
+      <kot-slide>
         <h1>Hello there</h1>
         <p>This is a presentation about web components</p>
-      </smn-slide>
-      <smn-slide>
+      </kot-slide>
+      <kot-slide>
         <h1>You're in a presentation</h1>
         <p data-fragment>Hello there</p>
         <ul>
           <li data-fragment>Step 1</li>
           <li data-fragment>Steppesaurus 2</li>
         </ul>
-      </smn-slide>
-      <smn-slide>
+      </kot-slide>
+      <kot-slide>
         <h1>And this is a slide</h1>
-      </smn-slide>
-      <smn-slide>
+      </kot-slide>
+      <kot-slide>
         <h1>This is the last slide</h1>
-      </smn-slide>
-    </smn-presentation>
+      </kot-slide>
+    </kot-presentation>
   </body>
 </html>

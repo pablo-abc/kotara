@@ -18,6 +18,7 @@ marked.use({
 });
 
 const template = document.createElement('template');
+
 @controller
 export class KotMarkedElement extends HTMLElement {
   get markdown() {

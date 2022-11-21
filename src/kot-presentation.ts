@@ -2,6 +2,8 @@ import { KotSlideElement } from './kot-slide';
 import { controller } from '@github/catalyst';
 import { animate } from 'motion';
 
+import './kot-progress';
+
 const NEXT_KEYS = ['ArrowRight', 'Space', 'KeyL'];
 
 const PREV_KEYS = ['ArrowLeft', 'KeyH'];
@@ -10,14 +12,15 @@ const template = document.createElement('template');
 
 template.innerHTML = /* HTML */ `
   <style>
-    #progressbar {
+    #progressbar,
+    kot-progress {
       width: 100vw;
       position: fixed;
       bottom: 0;
     }
   </style>
   <slot id="default"></slot>
-  <progress id="progressbar" max="100" value="0"></progress>
+  <kot-progress data-value="0"></kot-progress>
 `;
 
 @controller
@@ -55,8 +58,8 @@ export class KotPresentationElement extends HTMLElement {
 
   get progressBar() {
     return this.shadowRoot!.querySelector(
-      '#progressbar'
-    ) as HTMLProgressElement;
+      'kot-progress'
+    ) as HTMLKotProgressBarElement;
   }
 
   constructor() {

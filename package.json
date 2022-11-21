@@ -1,12 +1,10 @@
 {
   "name": "kotara",
-  "version": "0.0.0",
+  "description": "Create presentations using web components",
+  "version": "0.0.1",
   "type": "module",
   "main": "./dist/index.js",
   "module": "./dist/index.js",
-  "exports": {
-    ".": "./dist/index.js"
-  },
   "files": [
     "dist"
   ],
@@ -36,5 +34,11 @@
   },
   "publishConfig": {
     "access": "public"
+  },
+  "exports": {
+    ".": "./dist/index.js",
+    "./dist/*.js": "./dist/*.js",
+    "./package.json": "./package.json",
+    "./custom-elements.json": "./custom-elements.json"
   }
 }

@@ -1,7 +1,50 @@
 import { controller, attr } from '@github/catalyst';
 import { animate } from 'motion';
 
+type VisibilityFragment = { element: HTMLElement; action: 'fade' };
+
+type HighlightFragment = {
+  element: HTMLElement;
+  action: 'highlight';
+  lines: string;
+};
+
+type Fragment = VisibilityFragment | HighlightFragment;
+
 const template = document.createElement('template');
+
+function getHighlightedSelector(lines: string) {
+  const range = lines.split('-').map((v) => Number(v));
+  let selector = '[data-line]';
+  if (range.length > 1) {
+    for (let i = range[0]; i <= range[1]; i++) {
+      selector += `:not([data-line="${i}"])`;
+    }
+  } else {
+    selector += `:not([data-line="${range[0]}])`;
+  }
+  return selector;
+}
+
+function updateHighlightedLines(element: HTMLElement, line: string) {
+  const selector = getHighlightedSelector(line);
+  const allLines = element.querySelectorAll(
+    '[data-line]'
+  ) as NodeListOf<HTMLElement>;
+  const fadedLines = element.querySelectorAll(
+    selector
+  ) as NodeListOf<HTMLElement>;
+  allLines.forEach((line) => {
+    line.style.opacity = '';
+    line.dataset.highlighted = '';
+  });
+  fadedLines.forEach((line) => {
+    line.style.opacity = '0.4';
+    delete line.dataset.highlighted;
+  });
+
+  document.querySelector('[data-highlighted]')?.scrollIntoView();
+}
 
 template.innerHTML = /* HTML */ `
   <style>
@@ -75,14 +118,34 @@ export class KotSlideElement extends HTMLElement {
   @attr
   currentIndex = -1;
 
+  @attr
+  lineIndex = -1;
+
   get container() {
     return this.shadowRoot!.querySelector('#slide-container') as HTMLDivElement;
   }
 
-  get fragments() {
-    return Array.from(
-      this.querySelectorAll('[data-fragment]')
-    ) as HTMLElement[];
+  get fragments(): Fragment[] {
+    return (
+      Array.from(this.querySelectorAll('[data-fragment]')) as HTMLElement[]
+    ).flatMap((fragment) => {
+      switch (fragment.dataset.fragment) {
+        case 'code':
+          const lines = fragment.dataset.lineNumbers?.split(',');
+          if (!lines) return [];
+          const initialLine = lines.shift();
+          if (initialLine) updateHighlightedLines(fragment, initialLine);
+          return lines.map((line) => {
+            return {
+              element: fragment,
+              action: 'highlight',
+              lines: line,
+            } as Fragment;
+          });
+        default:
+          return { element: fragment, action: 'fade' } as Fragment;
+      }
+    });
   }
 
   get hasFragments() {
@@ -123,6 +186,7 @@ export class KotSlideElement extends HTMLElement {
     this.attachShadow({ mode: 'open' }).appendChild(
       document.importNode(template.content, true)
     );
+    this.updateFragmentVisibility = this.updateFragmentVisibility.bind(this);
     this.handleResize = this.handleResize.bind(this);
     this.handlePopstate = this.handlePopstate.bind(this);
     this.observer = new ResizeObserver(this.handleResize);
@@ -160,34 +224,51 @@ export class KotSlideElement extends HTMLElement {
     this.style.visibility = 'hidden';
     this.handlePopstate();
     this.observer.observe(this);
+    this.addEventListener('kot-code:render', this.updateFragmentVisibility);
     requestAnimationFrame(() => {
       this.handleResize();
       window.addEventListener('resize', this.handleResize);
     });
   }
 
+  async #handleVisibilityFragment(fragment: VisibilityFragment, index: number) {
+    const element = fragment.element;
+    if (index <= this.currentIndex) {
+      if (!element.hasAttribute('data-visible')) {
+        animate(
+          element,
+          { opacity: [0, 1], x: [-100, 0] },
+          {
+            duration: 0.1,
+            easing: 'ease-out',
+            opacity: { easing: 'linear' },
+          }
+        );
+        element.setAttribute('data-visible', '');
+      }
+    } else {
+      if (element.hasAttribute('data-visible')) {
+        await animate(
+          element,
+          { opacity: 0, x: [0, -100] },
+          {
+            duration: 0.1,
+            easing: 'ease-in',
+            opacity: { easing: 'linear' },
+          }
+        ).finished;
+        element.removeAttribute('data-visible');
+      }
+      element.style.opacity = '0';
+    }
+  }
+
   updateFragmentVisibility() {
     this.fragments.forEach(async (fragment, index) => {
-      if (index <= this.currentIndex) {
-        if (!fragment.hasAttribute('data-visible')) {
-          animate(
-            fragment,
-            { opacity: [0, 1], x: [-100, 0] },
-            { duration: 0.1, easing: 'ease-out', opacity: { easing: 'linear' } }
-          );
-          fragment.setAttribute('data-visible', '');
-        }
-      } else {
-        if (fragment.hasAttribute('data-visible')) {
-          await animate(
-            fragment,
-            { opacity: 0, x: [0, -100] },
-            { duration: 0.1, easing: 'ease-in', opacity: { easing: 'linear' } }
-          ).finished;
-          fragment.removeAttribute('data-visible');
-        }
-        fragment.style.opacity = '0';
-      }
+      if (fragment.action === 'fade')
+        this.#handleVisibilityFragment(fragment, index);
+      if (fragment.action === 'highlight' && index === this.currentIndex)
+        updateHighlightedLines(fragment.element, fragment.lines);
     });
   }
 
@@ -201,6 +282,7 @@ export class KotSlideElement extends HTMLElement {
       if (this.visible) {
         this.style.visibility = 'visible';
         animate(this, { opacity: [0, 1] }, { duration: 0.1, delay: 0.1 });
+        this.updateFragmentVisibility();
       } else {
         await animate(this, { opacity: 0 }, { duration: 0.1 }).finished;
         this.style.visibility = 'hidden';
@@ -213,6 +295,7 @@ export class KotSlideElement extends HTMLElement {
 
   disconnectedCallback() {
     window.removeEventListener('resize', this.handleResize);
+    this.removeEventListener('kot-code:render', this.updateFragmentVisibility);
     this.observer.disconnect();
   }
 }

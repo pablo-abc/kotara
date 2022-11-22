@@ -1,4 +1,4 @@
-import { controller } from '@github/catalyst';
+import { controller, attr } from '@github/catalyst';
 import hljs from 'highlight.js';
 
 function highlight(code: string, lang: string) {
@@ -33,6 +33,8 @@ const template = document.createElement('template');
 
 @controller
 export class KotCodeElement extends HTMLElement {
+  @attr lineNumbers = '';
+
   get #code() {
     const script = this.querySelector(
       'script[type^="text/"]'
@@ -47,10 +49,11 @@ export class KotCodeElement extends HTMLElement {
       })
       .join('\n');
     return /* HTML */ `
-      <pre class="hljs"><code class="${lang}">${highlight(
-        code,
-        lang
-      )}</code></pre>
+      <pre
+        class="hljs"
+        data-fragment="code"
+        data-line-numbers="${this.lineNumbers}"
+      ><code class="${lang}">${highlight(code, lang)}</code></pre>
     `;
   }
 

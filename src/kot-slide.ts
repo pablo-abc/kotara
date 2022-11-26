@@ -43,7 +43,9 @@ function updateHighlightedLines(element: HTMLElement, line: string) {
     delete line.dataset.highlighted;
   });
 
-  document.querySelector('[data-highlighted]')?.scrollIntoView();
+  document
+    .querySelector('[data-highlighted]')
+    ?.scrollIntoView({ behavior: 'smooth' });
 }
 
 template.innerHTML = /* HTML */ `

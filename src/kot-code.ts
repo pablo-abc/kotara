@@ -21,6 +21,7 @@ styleTemplate.innerHTML = /* HTML */ `
     pre.hljs {
       counter-reset: line;
     }
+
     [data-line]::before {
       counter-increment: line;
       content: counter(line) ' ';
@@ -52,7 +53,7 @@ export class KotCodeElement extends HTMLElement {
       <pre
         class="hljs"
         data-fragment="code"
-        data-line-numbers="${this.lineNumbers}"
+        data-line-numbers="${this.lineNumbers.replaceAll(' ', '')}"
       ><code class="${lang}">${highlight(code, lang)}</code></pre>
     `;
   }

@@ -134,7 +134,11 @@ export class KotSlideElement extends HTMLElement {
     ).flatMap((fragment) => {
       switch (fragment.dataset.fragment) {
         case 'code':
-          const lines = fragment.dataset.lineNumbers?.split(',');
+          const lines = fragment.dataset.lineNumbers
+            ?.split(',')
+            .map((line) =>
+              line ? line : `1-${this.querySelectorAll('[data-line]').length}`
+            );
           if (!lines) return [];
           const initialLine = lines.shift();
           if (initialLine) updateHighlightedLines(fragment, initialLine);

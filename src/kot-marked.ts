@@ -7,9 +7,13 @@ marked.use({
   renderer: {
     code(code, infostring) {
       if (!infostring) return /* HTML */ `<pre><code>${code}</code></pre>`;
-      const [lang] = infostring.split(' ');
+      const [lang, linesMatch] = infostring.split(' ');
+      const lines = linesMatch
+        .match(/\[(.*)\]/)?.[1]
+        .split('|')
+        .join(',');
       return `
-        <kot-code>
+        <kot-code data-line-numbers="${lines}">
           <script type="text/${lang}">${code}</script>
         </kot-code>
       `;

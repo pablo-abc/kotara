@@ -35,6 +35,7 @@ function updateHighlightedLines(element: HTMLElement, line: string) {
     selector
   ) as NodeListOf<HTMLElement>;
   allLines.forEach((line) => {
+    line.style.transition = 'opacity 0.1s';
     line.style.opacity = '';
     line.dataset.highlighted = '';
   });
@@ -266,11 +267,15 @@ export class KotSlideElement extends HTMLElement {
   }
 
   updateFragmentVisibility() {
+    // TODO: call somehow updateHighlightedLightedLines when
+    // fragment is removed
     this.fragments.forEach(async (fragment, index) => {
-      if (fragment.action === 'fade')
+      if (fragment.action === 'fade') {
         this.#handleVisibilityFragment(fragment, index);
-      if (fragment.action === 'highlight' && index === this.currentIndex)
+      }
+      if (fragment.action === 'highlight' && index === this.currentIndex) {
         updateHighlightedLines(fragment.element, fragment.lines);
+      }
     });
   }
 

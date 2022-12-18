@@ -96,7 +96,10 @@ template.innerHTML = /* HTML */ `
       font-size: 4em;
     }
 
-    ::slotted(pre) {
+    ::slotted(pre),
+    ::slotted(kot-code) {
+      padding: 0;
+      margin: 0;
       font-size: 1.2em;
       text-align: left;
       max-height: 20em;

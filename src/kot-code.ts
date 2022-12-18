@@ -18,11 +18,11 @@ const styleTemplate = document.createElement('template');
 
 styleTemplate.innerHTML = /* HTML */ `
   <style>
-    pre.hljs {
+    kot-code pre.hljs {
       counter-reset: line;
     }
 
-    [data-line]::before {
+    kot-code [data-line]::before {
       counter-increment: line;
       content: counter(line) ' ';
       opacity: 0.5;
@@ -63,11 +63,10 @@ export class KotCodeElement extends HTMLElement {
       document.head.appendChild(styleTemplate.content.cloneNode(true));
       loaded = true;
     }
-    this.style.display = 'none';
 
     template.innerHTML = this.#code;
-    this.parentElement?.insertBefore(template.content, this.nextElementSibling);
+    this.classList.add('hljs');
+    this.appendChild(template.content.cloneNode(true));
     this.dispatchEvent(new CustomEvent('kot-code:render', { bubbles: true }));
-    this.parentElement?.removeChild(this);
   }
 }
